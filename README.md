@@ -368,7 +368,7 @@ Beatmaps and osu! branding remain the property of their respective owners. This 
   </a>
 </p>
 
-Recover carefully. Validate everything. Never modify the live osu!lazer database directly.
+> “Life is like a GitHub repository. No progress happens until you make a commit.”
 
 </div>
 
@@ -378,6 +378,10 @@ Recover carefully. Validate everything. Never modify the live osu!lazer database
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,20,24&height=110&section=footer" width="100%" alt="Footer" />
 
+### Thanks for visiting Osu! Library Recovery.
+
 **Discover. Review. Recover.**
+
+⭐ Star the repository if Mizuki is useful to your community.
 
 </div>
