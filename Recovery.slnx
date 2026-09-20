@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Recovery.App/Recovery.App.csproj" />
+    <Project Path="src/Recovery.Core/Recovery.Core.csproj" />
+    <Project Path="src/Recovery.Downloads/Recovery.Downloads.csproj" />
+    <Project Path="src/Recovery.Import/Recovery.Import.csproj" />
+    <Project Path="src/Recovery.Local/Recovery.Local.csproj" />
+    <Project Path="src/Recovery.OsuApi/Recovery.OsuApi.csproj" />
+    <Project Path="src/Recovery.Packaging/Recovery.Packaging.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Recovery.Tests/Recovery.Tests.csproj" />
+  </Folder>
+</Solution>

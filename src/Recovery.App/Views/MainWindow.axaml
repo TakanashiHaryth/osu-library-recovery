@@ -1,0 +1,459 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Recovery.App.ViewModels"
+        x:Class="Recovery.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Beatmap Library Recovery"
+        Icon="/Assets/OsuRecoverLibrary.ico"
+        Width="1440"
+        Height="900"
+        MinWidth="1180"
+        MinHeight="720"
+        WindowStartupLocation="CenterScreen"
+        Background="#0A0C11">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="AppBackground">#0A0C11</SolidColorBrush>
+        <SolidColorBrush x:Key="SidebarBackground">#10131A</SolidColorBrush>
+        <SolidColorBrush x:Key="Surface">#141821</SolidColorBrush>
+        <SolidColorBrush x:Key="SurfaceRaised">#191E28</SolidColorBrush>
+        <SolidColorBrush x:Key="Stroke">#252B38</SolidColorBrush>
+        <SolidColorBrush x:Key="TextPrimary">#F4F6FA</SolidColorBrush>
+        <SolidColorBrush x:Key="TextSecondary">#929BAD</SolidColorBrush>
+        <SolidColorBrush x:Key="TextMuted">#697386</SolidColorBrush>
+        <SolidColorBrush x:Key="Accent">#FF5C9D</SolidColorBrush>
+        <SolidColorBrush x:Key="AccentSoft">#351B2A</SolidColorBrush>
+        <SolidColorBrush x:Key="Success">#52D6A0</SolidColorBrush>
+        <SolidColorBrush x:Key="Warning">#F2C66D</SolidColorBrush>
+        <SolidColorBrush x:Key="Info">#79A8FF</SolidColorBrush>
+    </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="TextBlock">
+            <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+        </Style>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{StaticResource Surface}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Stroke}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+        </Style>
+        <Style Selector="TextBox, ComboBox, NumericUpDown">
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="FontSize" Value="13" />
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="MinHeight" Value="36" />
+            <Setter Property="Padding" Value="14,0" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="{StaticResource Accent}" />
+            <Setter Property="Foreground" Value="#170A10" />
+        </Style>
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#202633" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+        </Style>
+        <Style Selector="Button.ghost">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+        </Style>
+        <Style Selector="Button.danger">
+            <Setter Property="Background" Value="#3B1D26" />
+            <Setter Property="Foreground" Value="#FF9BB8" />
+        </Style>
+        <Style Selector="TextBlock.eyebrow">
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="LetterSpacing" Value="1.4" />
+            <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
+        </Style>
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+        </Style>
+        <Style Selector="ListBox.library-list">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style Selector="ListBox.library-list ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="ListBox.library-list ListBoxItem:pointerover">
+            <Setter Property="Background" Value="#191E28" />
+        </Style>
+        <Style Selector="ListBox.library-list ListBoxItem:selected">
+            <Setter Property="Background" Value="#1D202B" />
+        </Style>
+    </Window.Styles>
+
+    <Grid ColumnDefinitions="330,*">
+        <!-- Guided recovery workflow -->
+        <Border Grid.Column="0"
+                Background="{StaticResource SidebarBackground}"
+                BorderBrush="{StaticResource Stroke}"
+                BorderThickness="0,0,1,0">
+            <Grid RowDefinitions="Auto,*,Auto">
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Margin="24,24,24,20">
+                    <Border Width="42" Height="42" CornerRadius="12" Background="{StaticResource Accent}">
+                        <TextBlock Text="o!" FontSize="17" FontWeight="Black" Foreground="#16080E"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,1,0,0" Spacing="1">
+                        <TextBlock Text="BEATMAP RECOVERY" FontSize="14" FontWeight="Bold" />
+                        <TextBlock Text="for osu!lazer" FontSize="12" Foreground="{StaticResource TextSecondary}" />
+                    </StackPanel>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="18,0,18,18" Spacing="14">
+                        <StackPanel Margin="6,0,6,2" Spacing="4">
+                            <TextBlock Classes="eyebrow" Text="RECOVERY WORKSPACE" />
+                            <TextBlock Text="Follow the three steps below. Your live osu! database stays read-only."
+                                       FontSize="11" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <!-- Step 1 -->
+                        <Border Classes="card" Padding="16">
+                            <StackPanel Spacing="11">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border Width="24" Height="24" CornerRadius="12" Background="{StaticResource AccentSoft}">
+                                        <TextBlock Text="1" FontSize="11" FontWeight="Bold" Foreground="{StaticResource Accent}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="Discover account history" FontSize="13" FontWeight="SemiBold" />
+                                        <TextBlock Text="Find beatmaps from online play records" FontSize="10" Foreground="{StaticResource TextMuted}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Spacing="5">
+                                    <TextBlock Classes="label" Text="Username or user ID" />
+                                    <TextBox Text="{Binding Username}" PlaceholderText="e.g. Haryth" />
+                                </StackPanel>
+
+                                <ToggleSwitch Content="Use offline demo data"
+                                              IsChecked="{Binding UseMockData}"
+                                              FontSize="11" Foreground="{StaticResource TextSecondary}" />
+
+                                <Expander Header="API credentials (optional)" IsVisible="{Binding !UseMockData}">
+                                    <StackPanel Margin="0,10,0,0" Spacing="8">
+                                        <TextBox Text="{Binding ClientId}" PlaceholderText="Client ID" />
+                                        <TextBox Text="{Binding ClientSecret}" PlaceholderText="Client secret" PasswordChar="●" />
+                                    </StackPanel>
+                                </Expander>
+
+                                <Button Classes="primary" Command="{Binding DiscoverCommand}" IsEnabled="{Binding !IsBusy}">
+                                    <TextBlock Text="Discover library" Foreground="#170A10" FontWeight="Bold" />
+                                </Button>
+                                <ProgressBar IsIndeterminate="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                             Height="3" Foreground="{StaticResource Accent}" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Step 2 -->
+                        <Border Classes="card" Padding="16">
+                            <StackPanel Spacing="11">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border Width="24" Height="24" CornerRadius="12" Background="#172B28">
+                                        <TextBlock Text="2" FontSize="11" FontWeight="Bold" Foreground="{StaticResource Success}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="Compare local library" FontSize="13" FontWeight="SemiBold" />
+                                        <TextBlock Text="Optional, safe and read-only" FontSize="10" Foreground="{StaticResource TextMuted}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Spacing="5">
+                                    <TextBlock Classes="label" Text="osu!lazer storage" />
+                                    <TextBox Text="{Binding OsuStoragePath}" PlaceholderText="Storage folder path" />
+                                </StackPanel>
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <Button Grid.Column="0" Classes="secondary" Command="{Binding ScanLocalLibraryCommand}"
+                                            IsEnabled="{Binding !IsScanningLocal}" Content="Check installed" />
+                                    <Button Grid.Column="1" Classes="ghost" Command="{Binding ScanLocalArtefactsCommand}"
+                                            IsEnabled="{Binding !IsScanningLocal}" Content="Scan artefacts" />
+                                </Grid>
+                                <TextBlock Text="{Binding LocalScanStatus}" FontSize="10" Foreground="{StaticResource TextMuted}"
+                                           TextWrapping="Wrap" MaxLines="2" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Step 3 -->
+                        <Border Classes="card" Padding="16">
+                            <StackPanel Spacing="11">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border Width="24" Height="24" CornerRadius="12" Background="#29231A">
+                                        <TextBlock Text="3" FontSize="11" FontWeight="Bold" Foreground="{StaticResource Warning}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                        <TextBlock Text="Configure recovery" FontSize="13" FontWeight="SemiBold" />
+                                        <TextBlock Text="Choose output and start when ready" FontSize="10" Foreground="{StaticResource TextMuted}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid ColumnDefinitions="*,110" ColumnSpacing="8">
+                                    <StackPanel Grid.Column="0" Spacing="5">
+                                        <TextBlock Classes="label" Text="Output" />
+                                        <ComboBox SelectedIndex="{Binding SelectedOutputModeIndex}" ItemsSource="{Binding OutputModeOptions}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="5">
+                                        <TextBlock Classes="label" Text="Package" />
+                                        <ComboBox SelectedIndex="{Binding GlobalVariantIndex}" ItemsSource="{Binding VariantOptions}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Spacing="5">
+                                    <TextBlock Classes="label" Text="Destination" />
+                                    <TextBox Text="{Binding DestinationPath}" PlaceholderText="Output folder or ZIP path" />
+                                </StackPanel>
+
+                                <Button Classes="primary" Command="{Binding StartRecoveryCommand}"
+                                        IsEnabled="{Binding !IsRecovering}" Content="Start recovery" />
+                                <Button Classes="danger" Command="{Binding CancelRecoveryCommand}"
+                                        IsVisible="{Binding IsRecovering}" Content="Cancel recovery" />
+
+                                <StackPanel IsVisible="{Binding IsRecovering}" Spacing="6">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Text="{Binding RecoveryProgressText}" FontSize="10" Foreground="{StaticResource TextSecondary}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="1" Margin="8,0,0,0"
+                                                   Text="{Binding RecoveryProgress, StringFormat='{}{0:F0}%'}"
+                                                   FontSize="10" FontWeight="Bold" Foreground="{StaticResource Accent}" />
+                                    </Grid>
+                                    <ProgressBar Value="{Binding RecoveryProgress}" Minimum="0" Maximum="100"
+                                                 Height="5" Foreground="{StaticResource Accent}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Border Grid.Row="2" Margin="18,0,18,18" Padding="12" CornerRadius="9" Background="#111720">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Border Width="7" Height="7" CornerRadius="4" Background="{StaticResource Success}"
+                                VerticalAlignment="Top" Margin="1,5,9,0" />
+                        <TextBlock Grid.Column="1" Text="Safe mode: no direct writes to client.realm or hashed storage."
+                                   FontSize="10" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Library workspace -->
+        <Grid Grid.Column="1" RowDefinitions="Auto,Auto,Auto,*,Auto" Background="{StaticResource AppBackground}">
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="30,24,30,18">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Beatmap library" FontSize="25" FontWeight="Bold" />
+                    <TextBlock Text="Review, filter and select the maps you want to recover."
+                               FontSize="12" Foreground="{StaticResource TextSecondary}" />
+                </StackPanel>
+                <Border Grid.Column="1" Background="{StaticResource AccentSoft}" CornerRadius="16" Padding="12,6"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="COMMUNITY TOOL" FontSize="9" FontWeight="Bold" LetterSpacing="1.2"
+                               Foreground="{StaticResource Accent}" />
+                </Border>
+            </Grid>
+
+            <!-- At-a-glance stats -->
+            <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" ColumnSpacing="10" Margin="30,0,30,16">
+                <Border Grid.Column="0" Classes="card" Padding="15,12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel>
+                            <TextBlock Text="TOTAL MAPS" Classes="eyebrow" />
+                            <TextBlock Text="{Binding TotalBeatmaps}" FontSize="22" FontWeight="Bold" Margin="0,4,0,0" />
+                        </StackPanel>
+                        <Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{StaticResource Info}" />
+                    </Grid>
+                </Border>
+                <Border Grid.Column="1" Classes="card" Padding="15,12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel>
+                            <TextBlock Text="IN LIBRARY" Classes="eyebrow" />
+                            <TextBlock Text="{Binding InstalledCount}" FontSize="22" FontWeight="Bold" Margin="0,4,0,0" />
+                        </StackPanel>
+                        <Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{StaticResource Success}" />
+                    </Grid>
+                </Border>
+                <Border Grid.Column="2" Classes="card" Padding="15,12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel>
+                            <TextBlock Text="MISSING" Classes="eyebrow" />
+                            <TextBlock Text="{Binding MissingCount}" FontSize="22" FontWeight="Bold" Margin="0,4,0,0" />
+                        </StackPanel>
+                        <Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{StaticResource Warning}" />
+                    </Grid>
+                </Border>
+                <Border Grid.Column="3" Classes="card" Padding="15,12" BorderBrush="#5A2E43">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel>
+                            <TextBlock Text="SELECTED" Classes="eyebrow" />
+                            <TextBlock Text="{Binding SelectedCount}" FontSize="22" FontWeight="Bold" Foreground="{StaticResource Accent}" Margin="0,4,0,0" />
+                        </StackPanel>
+                        <Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{StaticResource Accent}" />
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Filters and bulk actions -->
+            <Border Grid.Row="2" Classes="card" Margin="30,0,30,14" Padding="14">
+                <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+                    <Grid Grid.Row="0" ColumnDefinitions="2*,150,130,125,Auto" ColumnSpacing="9">
+                        <TextBox Grid.Column="0" Text="{Binding SearchText}"
+                                 PlaceholderText="Search title, artist, mapper or beatmap ID" />
+                        <ComboBox Grid.Column="1" SelectedIndex="{Binding SelectedRulesetIndex}"
+                                  ItemsSource="{Binding RulesetOptions}" />
+                        <ComboBox Grid.Column="2" SelectedItem="{Binding SelectedStatus}"
+                                  ItemsSource="{Binding StatusOptions}" />
+                        <NumericUpDown Grid.Column="3" Value="{Binding MinPlayCount}" Minimum="0" Maximum="10000"
+                                       FormatString="0" PlaceholderText="Min. plays" />
+                        <Button Grid.Column="4" Classes="ghost" Command="{Binding ClearFiltersCommand}" Content="Reset filters" />
+                    </Grid>
+                    <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto">
+                        <CheckBox Grid.Column="0" Content="Hide maps already installed" IsChecked="{Binding HideInstalled}"
+                                  FontSize="11" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Text="{Binding StatsSummary}" FontSize="10" Foreground="{StaticResource TextMuted}"
+                                   VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5">
+                            <Button Classes="ghost" Command="{Binding SelectAllCommand}" Content="Select visible" />
+                            <Button Classes="ghost" Command="{Binding SelectMissingOnlyCommand}" Content="Select missing" />
+                            <Button Classes="ghost" Command="{Binding InvertSelectionCommand}" Content="Invert" />
+                            <Button Classes="ghost" Command="{Binding ClearSelectionCommand}" Content="Clear" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Data table -->
+            <Border Grid.Row="3" Classes="card" Margin="30,0,30,16" ClipToBounds="True">
+                <Grid RowDefinitions="Auto,*">
+                    <Grid Grid.Row="0" ColumnDefinitions="44,88,78,2*,140,120,72,88,90,98"
+                          MinWidth="1010" Height="42" Background="#11151D">
+                        <TextBlock Grid.Column="2" Text="ID" Classes="eyebrow" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="3" Text="BEATMAP" Classes="eyebrow" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="4" Text="ARTIST" Classes="eyebrow" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="5" Text="MAPPER" Classes="eyebrow" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="6" Text="PLAYS" Classes="eyebrow" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="7" Text="STATUS" Classes="eyebrow" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="8" Text="SOURCE" Classes="eyebrow" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="9" Text="RECOVERY" Classes="eyebrow" VerticalAlignment="Center" />
+                    </Grid>
+
+                    <Grid Grid.Row="1">
+                        <ListBox Classes="library-list" ItemsSource="{Binding DisplayedItems}"
+                                 IsVisible="{Binding HasDisplayedItems}"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:BeatmapItemViewModel">
+                                    <Border BorderBrush="{StaticResource Stroke}" BorderThickness="0,0,0,1" MinWidth="1010">
+                                        <Grid ColumnDefinitions="44,88,78,2*,140,120,72,88,90,98" Height="68">
+                                            <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                                            <Border Grid.Column="1" Width="72" Height="43" CornerRadius="7"
+                                                    Background="#242B38" ClipToBounds="True"
+                                                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <Grid>
+                                                    <TextBlock Text="{Binding SetIdDisplay}" FontSize="9" FontWeight="Bold"
+                                                               Foreground="{StaticResource TextMuted}"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                               IsVisible="{Binding !IsThumbnailLoaded}" />
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                                           IsVisible="{Binding IsThumbnailLoaded}" />
+                                                </Grid>
+                                            </Border>
+
+                                            <TextBlock Grid.Column="2" Text="{Binding SetIdDisplay}" FontSize="11"
+                                                       FontWeight="SemiBold" Foreground="{StaticResource Info}"
+                                                       VerticalAlignment="Center" />
+
+                                            <StackPanel Grid.Column="3" VerticalAlignment="Center" Spacing="3" Margin="0,0,12,0">
+                                                <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1" />
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <TextBlock Text="{Binding RulesetDisplay}" FontSize="10" Foreground="{StaticResource TextSecondary}" />
+                                                    <TextBlock Text="•" FontSize="10" Foreground="{StaticResource TextMuted}" />
+                                                    <TextBlock Text="{Binding DifficultySummary}" FontSize="10" Foreground="{StaticResource TextMuted}" />
+                                                    <Border Background="#173128" CornerRadius="4" Padding="5,1"
+                                                            IsVisible="{Binding IsInstalled}">
+                                                        <TextBlock Text="IN LIBRARY" FontSize="8" FontWeight="Bold" Foreground="{StaticResource Success}" />
+                                                    </Border>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="4" Text="{Binding Artist}" FontSize="11"
+                                                       Foreground="{StaticResource TextSecondary}" TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center" Margin="0,0,10,0" />
+                                            <TextBlock Grid.Column="5" Text="{Binding Mapper}" FontSize="11"
+                                                       Foreground="{StaticResource TextSecondary}" TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center" Margin="0,0,10,0" />
+                                            <TextBlock Grid.Column="6" Text="{Binding TotalPlayCount}" FontSize="11" FontWeight="SemiBold"
+                                                       VerticalAlignment="Center" />
+
+                                            <Border Grid.Column="7" Background="#1A2635" CornerRadius="5" Padding="7,3"
+                                                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding StatusDisplay}" FontSize="9" FontWeight="SemiBold"
+                                                           Foreground="#8AB7FF" />
+                                            </Border>
+                                            <Border Grid.Column="8" Background="#24231B" CornerRadius="5" Padding="7,3"
+                                                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding EvidenceDisplay}" FontSize="9" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource Warning}" />
+                                            </Border>
+                                            <TextBlock Grid.Column="9" Text="{Binding ItemStatus}" FontSize="9" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <StackPanel IsVisible="{Binding !HasDisplayedItems}" HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" Spacing="9" MaxWidth="330">
+                            <Border Width="52" Height="52" CornerRadius="26" Background="#1B202A">
+                                <TextBlock Text="♪" FontSize="23" Foreground="{StaticResource Accent}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="No beatmaps to display" FontSize="15" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Discover an account from the left panel, or reset your active filters."
+                                       FontSize="11" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap"
+                                       TextAlignment="Center" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Persistent status and exports -->
+            <Border Grid.Row="4" Background="#10131A" BorderBrush="{StaticResource Stroke}" BorderThickness="0,1,0,0"
+                    Padding="30,12">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="10">
+                    <Border Grid.Column="0" Width="8" Height="8" CornerRadius="4" Background="{StaticResource Success}"
+                            VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" FontSize="11" Foreground="{StaticResource TextSecondary}"
+                               TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                    <Border Grid.Column="2" Background="#282317" CornerRadius="7" Padding="10,5">
+                        <TextBlock Text="{Binding SizeEstimateSummary}" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{StaticResource Warning}" />
+                    </Border>
+                    <Button Grid.Column="3" Classes="ghost" Command="{Binding ExportJsonManifestCommand}" Content="Export JSON" />
+                    <Button Grid.Column="4" Classes="secondary" Command="{Binding ExportCsvManifestCommand}" Content="Export CSV" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
