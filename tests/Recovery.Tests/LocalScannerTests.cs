@@ -152,4 +152,90 @@ HPDrainRate:5
         Assert.Equal(2, missingOnly[0].SetId);
         Assert.Equal("Missing Song", missingOnly[0].Title);
     }
+
+    [Fact]
+    public void StorageLocator_StableMethods_ValidateCorrectly()
+    {
+        var defaultStable = OsuStorageLocator.GetDefaultOsuStableDirectory();
+        if (OperatingSystem.IsWindows())
+        {
+            Assert.Contains("osu!", defaultStable);
+        }
+
+        Assert.False(OsuStorageLocator.IsValidOsuStableDirectory(""));
+        Assert.False(OsuStorageLocator.IsValidOsuStableDirectory(Path.Combine(_testDir, "nonexistent")));
+    }
+
+    [Fact]
+    public async Task LocalLibraryScanner_FindsBeatmapsInStableSongsDirectory()
+    {
+        // Mock osu! Stable Songs folder
+        var songsDir = Path.Combine(_testDir, "Songs");
+        var folder1 = Path.Combine(songsDir, "543210 Camellia - GHOST");
+        var folder2 = Path.Combine(songsDir, "Unnumbered Folder");
+        Directory.CreateDirectory(folder1);
+        Directory.CreateDirectory(folder2);
+
+        var osuContent1 = @"osu file format v14
+[Metadata]
+Title:GHOST
+Artist:Camellia
+Creator:TestMapper
+Version:Expert
+BeatmapID:11111
+BeatmapSetID:543210
+";
+        var osuContent2 = @"osu file format v14
+[Metadata]
+Title:Second Song
+Artist:Second Artist
+Creator:MapperTwo
+Version:Hard
+BeatmapID:22222
+BeatmapSetID:654321
+";
+        await File.WriteAllTextAsync(Path.Combine(folder1, "Camellia - GHOST [Expert].osu"), osuContent1, Encoding.UTF8);
+        await File.WriteAllTextAsync(Path.Combine(folder2, "Second Song [Hard].osu"), osuContent2, Encoding.UTF8);
+
+        var scanner = new LocalLibraryScanner();
+        var result = await scanner.ScanStableLibraryAsync(_testDir);
+
+        Assert.Equal(2, result.InstalledSetIds.Count);
+        Assert.Contains(543210, result.InstalledSetIds);
+        Assert.Contains(654321, result.InstalledSetIds);
+        Assert.Equal(2, result.DiscoveredBeatmaps.Count);
+    }
+
+    [Fact]
+    public void StorageLocator_GetCandidateOsuDirectories_ReturnsAtLeastOneCandidate()
+    {
+        var candidates = OsuStorageLocator.GetCandidateOsuDirectories().ToList();
+        Assert.NotEmpty(candidates);
+    }
+
+    [Fact]
+    public void StorageLocator_GetCandidateOsuStableDirectories_ReturnsAtLeastOneCandidate()
+    {
+        var candidates = OsuStorageLocator.GetCandidateOsuStableDirectories().ToList();
+        Assert.NotEmpty(candidates);
+    }
+
+    [Fact]
+    public void LazerPathDetector_Detect_ReturnsNonNullInstallationObject()
+    {
+        var install = Recovery.Import.LazerPathDetector.Detect();
+        Assert.NotNull(install);
+    }
+
+    [Fact]
+    public void StablePathDetector_Detect_CustomPathResolvesSongs()
+    {
+        var customDir = Path.Combine(_testDir, "CustomStable");
+        var songsDir = Path.Combine(customDir, "Songs");
+        Directory.CreateDirectory(songsDir);
+
+        var install = Recovery.Import.StablePathDetector.Detect(customDir);
+        Assert.True(install.IsInstalled);
+        Assert.Equal(songsDir, install.SongsDirectory);
+    }
 }

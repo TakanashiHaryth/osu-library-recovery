@@ -8,6 +8,12 @@ public enum Ruleset
     Mania = 3
 }
 
+public enum TargetClient
+{
+    Lazer = 0,
+    Stable = 1
+}
+
 public enum OutputMode
 {
     ZipBundle = 0,

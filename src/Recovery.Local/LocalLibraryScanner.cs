@@ -211,4 +211,151 @@ public class LocalLibraryScanner
             }
         }
     }
+
+    /// <summary>
+    /// Scans an osu! (Stable) directory for installed beatmap sets.
+    /// Inspects the Songs directory and reads folder names and .osu files in read-only mode.
+    /// </summary>
+    public async Task<LocalLibraryScanResult> ScanStableLibraryAsync(
+        string stablePath,
+        IProgress<string>? progress = null,
+        CancellationToken cancellationToken = default)
+    {
+        var result = new LocalLibraryScanResult();
+
+        if (string.IsNullOrWhiteSpace(stablePath) || !Directory.Exists(stablePath))
+        {
+            progress?.Report("Directory does not exist.");
+            return result;
+        }
+
+        var songsDir = Directory.Exists(Path.Combine(stablePath, "Songs"))
+            ? Path.Combine(stablePath, "Songs")
+            : stablePath;
+
+        if (Directory.Exists(songsDir))
+        {
+            progress?.Report("Scanning osu! Stable Songs folder...");
+            await Task.Run(() => ScanSongsDirectory(songsDir, result, progress, cancellationToken), cancellationToken);
+        }
+        else
+        {
+            progress?.Report("No 'Songs' directory found in selected path.");
+        }
+
+        progress?.Report($"Scan complete: found {result.InstalledSetIds.Count} installed beatmap sets.");
+        return result;
+    }
+
+    private void ScanSongsDirectory(
+        string songsDir,
+        LocalLibraryScanResult result,
+        IProgress<string>? progress,
+        CancellationToken cancellationToken)
+    {
+        var folderSetRegex = new Regex(@"^(\d+)\s+", RegexOptions.Compiled);
+        int folderCount = 0;
+
+        try
+        {
+            var subDirs = Directory.GetDirectories(songsDir);
+            foreach (var dir in subDirs)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                folderCount++;
+                var dirName = Path.GetFileName(dir);
+
+                // Quick match from folder name prefix (e.g. "123456 Artist - Title")
+                var match = folderSetRegex.Match(dirName);
+                if (match.Success && int.TryParse(match.Groups[1].Value, out int setId) && setId > 0)
+                {
+                    result.InstalledSetIds.Add(setId);
+                }
+
+                // Check .osu files inside for metadata and unnumbered folders
+                try
+                {
+                    var osuFiles = Directory.GetFiles(dir, "*.osu");
+                    foreach (var osuFile in osuFiles)
+                    {
+                        result.FilesScanned++;
+                        result.BeatmapFilesFound++;
+
+                        using var fs = new FileStream(osuFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                        using var reader = new StreamReader(fs, Encoding.UTF8);
+
+                        string? line;
+                        int fileSetId = 0;
+                        int mapId = 0;
+                        string? title = null;
+                        string? artist = null;
+                        string? version = null;
+                        int linesRead = 0;
+
+                        while ((line = reader.ReadLine()) != null && linesRead < 80)
+                        {
+                            linesRead++;
+                            if (fileSetId == 0)
+                            {
+                                var sm = BeatmapSetIdRegex.Match(line);
+                                if (sm.Success && int.TryParse(sm.Groups[1].Value, out int id) && id > 0)
+                                    fileSetId = id;
+                            }
+                            if (mapId == 0)
+                            {
+                                var bm = BeatmapIdRegex.Match(line);
+                                if (bm.Success && int.TryParse(bm.Groups[1].Value, out int id) && id > 0)
+                                    mapId = id;
+                            }
+                            if (title == null)
+                            {
+                                var tm = TitleRegex.Match(line);
+                                if (tm.Success) title = tm.Groups[1].Value.Trim();
+                            }
+                            if (artist == null)
+                            {
+                                var am = ArtistRegex.Match(line);
+                                if (am.Success) artist = am.Groups[1].Value.Trim();
+                            }
+                            if (version == null)
+                            {
+                                var vm = VersionRegex.Match(line);
+                                if (vm.Success) version = vm.Groups[1].Value.Trim();
+                            }
+
+                            if (line.StartsWith("[HitObjects]", StringComparison.OrdinalIgnoreCase))
+                                break;
+                        }
+
+                        if (fileSetId > 0)
+                        {
+                            result.InstalledSetIds.Add(fileSetId);
+                            result.DiscoveredBeatmaps.Add(new LocalBeatmapRecord(
+                                SetId: fileSetId,
+                                BeatmapId: mapId,
+                                Title: title ?? "Unknown Title",
+                                Artist: artist ?? "Unknown Artist",
+                                Version: version ?? "Normal",
+                                Md5Hash: null,
+                                SourceFile: osuFile
+                            ));
+                        }
+                    }
+                }
+                catch
+                {
+                    // Skip unreadable directories
+                }
+
+                if (folderCount % 50 == 0)
+                {
+                    progress?.Report($"Scanning Songs: {folderCount} folders checked ({result.InstalledSetIds.Count} sets found)...");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            progress?.Report($"Error reading Songs folder: {ex.Message}");
+        }
+    }
 }

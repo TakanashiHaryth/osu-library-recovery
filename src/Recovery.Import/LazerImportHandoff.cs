@@ -5,7 +5,7 @@ namespace Recovery.Import;
 
 public record ImportResult(bool Success, string? Message, bool ClientInvoked);
 
-public class LazerImportHandoff
+public class LazerImportHandoff : IClientImportHandoff
 {
     private readonly LazerInstallation _installation;
 

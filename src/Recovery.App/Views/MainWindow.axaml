@@ -3,7 +3,7 @@
         xmlns:vm="using:Recovery.App.ViewModels"
         x:Class="Recovery.App.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="Beatmap Library Recovery"
+        Title="Osu_Library_Recovery Application"
         Icon="/Assets/OsuRecoverLibrary.ico"
         Width="1440"
         Height="900"
@@ -105,9 +105,8 @@
                 BorderThickness="0,0,1,0">
             <Grid RowDefinitions="Auto,*,Auto">
                 <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Margin="24,24,24,20">
-                    <Border Width="42" Height="42" CornerRadius="12" Background="{StaticResource Accent}">
-                        <TextBlock Text="o!" FontSize="17" FontWeight="Black" Foreground="#16080E"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Width="42" Height="42" CornerRadius="12" ClipToBounds="True" Background="#141821">
+                        <Image Source="/Assets/OsuRecoverLibrary.png" Width="42" Height="42" Stretch="UniformToFill" />
                     </Border>
                     <StackPanel Grid.Column="1" Margin="12,1,0,0" Spacing="1">
                         <TextBlock Text="BEATMAP RECOVERY" FontSize="14" FontWeight="Bold" />
@@ -176,8 +175,15 @@
                                 </Grid>
 
                                 <StackPanel Spacing="5">
-                                    <TextBlock Classes="label" Text="osu!lazer storage" />
-                                    <TextBox Text="{Binding OsuStoragePath}" PlaceholderText="Storage folder path" />
+                                    <TextBlock Classes="label" Text="Target Client" />
+                                    <ComboBox ItemsSource="{Binding ClientTypeOptions}"
+                                              SelectedIndex="{Binding SelectedClientTypeIndex}"
+                                              HorizontalAlignment="Stretch" />
+                                </StackPanel>
+
+                                <StackPanel Spacing="5">
+                                    <TextBlock Classes="label" Text="{Binding StoragePathLabel}" />
+                                    <TextBox Text="{Binding OsuStoragePath}" PlaceholderText="{Binding StoragePathPlaceholder}" />
                                 </StackPanel>
 
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
@@ -218,7 +224,7 @@
 
                                 <StackPanel Spacing="5">
                                     <TextBlock Classes="label" Text="Destination" />
-                                    <TextBox Text="{Binding DestinationPath}" PlaceholderText="Output folder or ZIP path" />
+                                    <TextBox Text="{Binding DestinationPath}" IsReadOnly="{Binding !IsDestinationEditable}" PlaceholderText="Output folder or ZIP path" />
                                 </StackPanel>
 
                                 <Button Classes="primary" Command="{Binding StartRecoveryCommand}"
@@ -246,7 +252,7 @@
                     <Grid ColumnDefinitions="Auto,*">
                         <Border Width="7" Height="7" CornerRadius="4" Background="{StaticResource Success}"
                                 VerticalAlignment="Top" Margin="1,5,9,0" />
-                        <TextBlock Grid.Column="1" Text="Safe mode: no direct writes to client.realm or hashed storage."
+                        <TextBlock Grid.Column="1" Text="{Binding SafeModeDescription}"
                                    FontSize="10" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" />
                     </Grid>
                 </Border>

@@ -98,4 +98,32 @@ public class RecoveryQueueTests : IDisposable
         Assert.Contains($"beatmaps/{sets[0].GetSafePackageFileName()}", entries);
         Assert.Contains($"beatmaps/{sets[1].GetSafePackageFileName()}", entries);
     }
+
+    [Fact]
+    public async Task RunRecoveryAsync_AutoImportMode_StableTarget_CopiesOszDirectlyToSongsFolder()
+    {
+        var fakeStableDir = Path.Combine(_testDir, "FakeOsuStable");
+        var fakeSongsDir = Path.Combine(fakeStableDir, "Songs");
+        Directory.CreateDirectory(fakeSongsDir);
+
+        var queueManager = new RecoveryQueueManager(new MockDownloader(), concurrency: 2);
+        var sets = new List<BeatmapSet>
+        {
+            new BeatmapSet { SetId = 301, Artist = "StableArtist", Title = "StableTitle", IsSelected = true }
+        };
+
+        await queueManager.RunRecoveryAsync(
+            sets,
+            OutputMode.AutoImport,
+            destinationPath: "",
+            username: "TestUser",
+            defaultVariant: DownloadVariant.Full,
+            targetClient: TargetClient.Stable,
+            clientStoragePath: fakeStableDir
+        );
+
+        Assert.Equal(RecoveryItemStatus.Completed, sets[0].RecoveryStatus);
+        var expectedFile = Path.Combine(fakeSongsDir, sets[0].GetSafePackageFileName());
+        Assert.True(File.Exists(expectedFile), $"Expected .osz file to exist in Songs folder: {expectedFile}");
+    }
 }

@@ -58,7 +58,22 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private string _sizeEstimateSummary = "Est. Download: 0 MB";
 
-    // Local Storage & Assisted Recovery Options
+    // Local Storage & Target Client Options
+    public ObservableCollection<string> ClientTypeOptions { get; } = new()
+    {
+        "osu!lazer",
+        "osu! (Stable)"
+    };
+
+    [ObservableProperty]
+    private int _selectedClientTypeIndex = 0; // 0=lazer, 1=stable
+
+    [ObservableProperty]
+    private string _storagePathLabel = "osu!lazer storage";
+
+    [ObservableProperty]
+    private string _storagePathPlaceholder = OperatingSystem.IsWindows() ? "Storage folder path" : "e.g. ~/.local/share/osu or Flatpak";
+
     [ObservableProperty]
     private string _osuStoragePath = "";
 
@@ -127,19 +142,28 @@ public partial class MainWindowViewModel : ObservableObject
         "No Video"
     };
 
+    public bool IsDestinationEditable => SelectedOutputModeIndex != 2;
+
+    public string SafeModeDescription => SelectedClientTypeIndex == 1
+        ? "Safe mode: direct .osz handoff into osu! Songs directory (zero risk to osu!.db)."
+        : "Safe mode: no direct writes to client.realm or hashed storage.";
+
     public MainWindowViewModel()
     {
         OsuStoragePath = OsuStorageLocator.TryFindOsuStorageDirectory() ?? OsuStorageLocator.GetDefaultOsuDirectory();
+        OutputModeOptions[2] = SelectedClientTypeIndex == 1 ? "Auto-import to osu! (Stable)" : "Auto-import to osu!lazer";
         UpdateDefaultDestinationPath();
     }
 
     private void UpdateDefaultDestinationPath()
     {
         var downloadsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        var clientName = SelectedClientTypeIndex == 1 ? "osu! (Stable)" : "osu!lazer";
+        var clientTarget = SelectedClientTypeIndex == 1 ? "Songs/ folder" : "lazer client";
         DestinationPath = SelectedOutputModeIndex switch
         {
             1 => Path.Combine(downloadsFolder, "osu_recovery_bundle.zip"),
-            2 => "(osu!lazer Client Auto-Import)",
+            2 => $"({clientName} Auto-Import -> {clientTarget})",
             _ => Path.Combine(downloadsFolder, "OsuRecovered")
         };
     }
@@ -147,6 +171,29 @@ public partial class MainWindowViewModel : ObservableObject
     partial void OnSelectedOutputModeIndexChanged(int value)
     {
         UpdateDefaultDestinationPath();
+        OnPropertyChanged(nameof(IsDestinationEditable));
+    }
+
+    partial void OnSelectedClientTypeIndexChanged(int value)
+    {
+        if (value == 1)
+        {
+            StoragePathLabel = OperatingSystem.IsWindows() ? "osu! Stable folder" : "osu! Stable (Wine/Proton)";
+            StoragePathPlaceholder = OperatingSystem.IsWindows() ? "e.g. %LOCALAPPDATA%/osu!" : "e.g. ~/.wine/drive_c/osu! or Songs/";
+            OsuStoragePath = OsuStorageLocator.TryFindOsuStableDirectory() ?? OsuStorageLocator.GetDefaultOsuStableDirectory();
+            LocalScanStatus = "Target client set to osu! (Stable). Ready to scan Songs.";
+            OutputModeOptions[2] = "Auto-import to osu! (Stable)";
+        }
+        else
+        {
+            StoragePathLabel = "osu!lazer storage";
+            StoragePathPlaceholder = OperatingSystem.IsWindows() ? "Storage folder path" : "e.g. ~/.local/share/osu or Flatpak";
+            OsuStoragePath = OsuStorageLocator.TryFindOsuStorageDirectory() ?? OsuStorageLocator.GetDefaultOsuDirectory();
+            LocalScanStatus = "Target client set to osu!lazer. Ready to scan files.";
+            OutputModeOptions[2] = "Auto-import to osu!lazer";
+        }
+        UpdateDefaultDestinationPath();
+        OnPropertyChanged(nameof(SafeModeDescription));
     }
 
     [RelayCommand]
@@ -259,7 +306,9 @@ public partial class MainWindowViewModel : ObservableObject
                 Username,
                 variant,
                 progress,
-                _recoveryCts.Token
+                _recoveryCts.Token,
+                targetClient: SelectedClientTypeIndex == 1 ? TargetClient.Stable : TargetClient.Lazer,
+                clientStoragePath: OsuStoragePath
             );
 
             // Refresh rows after completion
@@ -300,17 +349,21 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(OsuStoragePath) || !Directory.Exists(OsuStoragePath))
         {
-            LocalScanStatus = "Directory not found. Please verify the osu! storage folder.";
+            LocalScanStatus = "Directory not found. Please verify the storage folder path.";
             return;
         }
 
         IsScanningLocal = true;
-        LocalScanStatus = "Scanning local osu! library (read-only)...";
+        var clientName = SelectedClientTypeIndex == 1 ? "osu! (Stable)" : "osu!lazer";
+        LocalScanStatus = $"Scanning local {clientName} library (read-only)...";
         var progress = new Progress<string>(msg => LocalScanStatus = msg);
 
         try
         {
-            var result = await _localScanner.ScanInstalledLibraryAsync(OsuStoragePath, progress);
+            var result = SelectedClientTypeIndex == 1
+                ? await _localScanner.ScanStableLibraryAsync(OsuStoragePath, progress)
+                : await _localScanner.ScanInstalledLibraryAsync(OsuStoragePath, progress);
+
             _installedSetIds.Clear();
             foreach (var id in result.InstalledSetIds)
             {
@@ -325,7 +378,7 @@ public partial class MainWindowViewModel : ObservableObject
 
             ApplyFilter();
             UpdateStats();
-            LocalScanStatus = $"Found {result.InstalledSetIds.Count} installed sets in local library.";
+            LocalScanStatus = $"Found {result.InstalledSetIds.Count} installed sets in {clientName} library.";
         }
         catch (Exception ex)
         {
@@ -481,10 +534,11 @@ public partial class MainWindowViewModel : ObservableObject
 
         var json = ManifestGenerator.GenerateJsonManifest(selectedSets, Username);
         var fileName = $"manifest_{Sanitize(Username)}_{DateTime.UtcNow:yyyyMMddHHmmss}.json";
-        var outPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
+        var exportDir = GetSafeExportDirectory();
+        var outPath = Path.Combine(exportDir, fileName);
 
         File.WriteAllText(outPath, json);
-        StatusMessage = $"Saved manifest.json to Desktop: {fileName}";
+        StatusMessage = $"Saved manifest.json to {Path.GetFileName(exportDir)}: {fileName}";
     }
 
     [RelayCommand]
@@ -499,10 +553,28 @@ public partial class MainWindowViewModel : ObservableObject
 
         var csv = ManifestGenerator.GenerateCsvManifest(selectedSets);
         var fileName = $"manifest_{Sanitize(Username)}_{DateTime.UtcNow:yyyyMMddHHmmss}.csv";
-        var outPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
+        var exportDir = GetSafeExportDirectory();
+        var outPath = Path.Combine(exportDir, fileName);
 
         File.WriteAllText(outPath, csv);
-        StatusMessage = $"Saved manifest.csv to Desktop: {fileName}";
+        StatusMessage = $"Saved manifest.csv to {Path.GetFileName(exportDir)}: {fileName}";
+    }
+
+    private static string GetSafeExportDirectory()
+    {
+        var desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        if (!string.IsNullOrEmpty(desktop) && Directory.Exists(desktop))
+        {
+            return desktop;
+        }
+
+        var downloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        if (Directory.Exists(downloads))
+        {
+            return downloads;
+        }
+
+        return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
     }
 
     private IEnumerable<Ruleset> GetSelectedRulesets()

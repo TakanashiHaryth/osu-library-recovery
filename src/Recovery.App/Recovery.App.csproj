@@ -27,6 +27,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationIcon>Assets\OsuRecoverLibrary.ico</ApplicationIcon>
+    <AssemblyName>Osu_Library_Recovery</AssemblyName>
+    <Product>Osu_Library_Recovery Application</Product>
+    <AssemblyTitle>Osu_Library_Recovery Application</AssemblyTitle>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
 
 </Project>

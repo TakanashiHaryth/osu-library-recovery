@@ -30,7 +30,9 @@ public class RecoveryQueueManager
         string username,
         DownloadVariant defaultVariant = DownloadVariant.Full,
         IProgress<QueueProgress>? progress = null,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        TargetClient targetClient = TargetClient.Lazer,
+        string? clientStoragePath = null)
     {
         if (selectedSets.Count == 0)
         {
@@ -56,11 +58,19 @@ public class RecoveryQueueManager
         }
 
         // Initialize import handoff if AutoImport mode
-        LazerImportHandoff? handoff = null;
+        IClientImportHandoff? handoff = null;
         if (mode == OutputMode.AutoImport)
         {
-            var install = LazerPathDetector.Detect();
-            handoff = new LazerImportHandoff(install);
+            if (targetClient == TargetClient.Stable)
+            {
+                var install = StablePathDetector.Detect(clientStoragePath);
+                handoff = new StableImportHandoff(install);
+            }
+            else
+            {
+                var install = LazerPathDetector.Detect();
+                handoff = new LazerImportHandoff(install);
+            }
         }
 
         using var semaphore = new SemaphoreSlim(_concurrency, _concurrency);
