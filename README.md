@@ -193,12 +193,12 @@ Use the interactive recovery table to search, sort, and filter by:
 
 ### 4. Choose a Recovery Output
 
-| Output Mode             | Format / Destination         | Description                                                                                         |
-| :---------------------- | :--------------------------- | :-------------------------------------------------------------------------------------------------- |
-| **Download to folder**  | Directory of `.osz` files    | Saves each validated `.osz` package separately into a chosen folder.                                |
-| **ZIP recovery bundle** | Outer `.zip` archive         | Creates one outer ZIP with packages, manifests, checksums, and a recovery report.                   |
-| **Auto-import**         | Installed osu! client        | Passes packages to **osu!lazer** via safe OS handoff, or directly into **osu! Stable `Songs/`**.    |
-| **Manifest export**     | `.json` / `.csv`             | Records selected set IDs, metadata, and official URLs without downloading.                          |
+| Output Mode             | Format / Destination      | Description                                                                                      |
+| :---------------------- | :------------------------ | :----------------------------------------------------------------------------------------------- |
+| **Download to folder**  | Directory of `.osz` files | Saves each validated `.osz` package separately into a chosen folder.                             |
+| **ZIP recovery bundle** | Outer `.zip` archive      | Creates one outer ZIP with packages, manifests, checksums, and a recovery report.                |
+| **Auto-import**         | Installed osu! client     | Passes packages to **osu!lazer** via safe OS handoff, or directly into **osu! Stable `Songs/`**. |
+| **Manifest export**     | `.json` / `.csv`          | Records selected set IDs, metadata, and official URLs without downloading.                       |
 
 ---
 
@@ -302,7 +302,7 @@ git --version
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/TakanashiHaryth/osu--library-recovery.git "Osu! Library Recovery"
+git clone https://github.com/TakanashiHaryth/osu-library-recovery.git "Osu! Library Recovery"
 cd "Osu! Library Recovery"
 ```
 
@@ -335,13 +335,17 @@ dotnet run --project src/Recovery.App
 ### 6. Portable Single-File Executables
 
 #### Windows Portable:
+
 Double-click `publish-portable.bat` or run:
+
 ```powershell
 dotnet publish src/Recovery.App/Recovery.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o "./publish/Osu_Library_Recovery"
 ```
 
 #### Linux Portable (x64 / SteamOS):
+
 Run `publish-linux.sh` (or `publish-linux.bat` from Windows):
+
 ```bash
 ./publish-linux.sh
 # To execute on Linux:
@@ -396,19 +400,19 @@ Beatmap Library Recovery/
 
 ## 📊 Development Status
 
-| Area / Capability                      | Status           | Description                                             |
-| :------------------------------------- | :--------------- | :------------------------------------------------------ |
-| **Modular .NET solution**              | ✅ Implemented   | Multi-project architecture on .NET 10 LTS               |
-| **Discovery and deduplication**        | ✅ Implemented   | Online most-played history and difficulty deduplication |
-| **Modern library UI with thumbnails**  | ✅ Implemented   | Table view with cover art, status badges, and filtering |
-| **Local evidence scanning**            | ✅ Implemented   | Read-only discovery for osu!lazer & osu! (Stable)       |
-| **Archive validation and checksums**   | ✅ Implemented   | `.osu` archive validation and SHA-256 calculation       |
-| **Folder and ZIP output**              | ✅ Implemented   | Multi-target export with manifests and reports          |
-| **Auto-import handoff**                | ✅ Implemented   | osu!lazer client handoff & osu! Stable Songs/ import    |
-| **Linux & Steam Deck support**         | ✅ Implemented   | Native, Flatpak, AppImage, and Wine/Proton detection    |
-| **Portable single-file binaries**      | ✅ Implemented   | Self-contained executables for Windows and Linux        |
-| **Persistent crash-safe job resume**   | ⏳ Planned       | SQLite-based state storage for recovery jobs            |
-| **Approved production download route** | 🔍 Under Review  | Reviewing compliant download providers                  |
+| Area / Capability                      | Status          | Description                                             |
+| :------------------------------------- | :-------------- | :------------------------------------------------------ |
+| **Modular .NET solution**              | ✅ Implemented  | Multi-project architecture on .NET 10 LTS               |
+| **Discovery and deduplication**        | ✅ Implemented  | Online most-played history and difficulty deduplication |
+| **Modern library UI with thumbnails**  | ✅ Implemented  | Table view with cover art, status badges, and filtering |
+| **Local evidence scanning**            | ✅ Implemented  | Read-only discovery for osu!lazer & osu! (Stable)       |
+| **Archive validation and checksums**   | ✅ Implemented  | `.osu` archive validation and SHA-256 calculation       |
+| **Folder and ZIP output**              | ✅ Implemented  | Multi-target export with manifests and reports          |
+| **Auto-import handoff**                | ✅ Implemented  | osu!lazer client handoff & osu! Stable Songs/ import    |
+| **Linux & Steam Deck support**         | ✅ Implemented  | Native, Flatpak, AppImage, and Wine/Proton detection    |
+| **Portable single-file binaries**      | ✅ Implemented  | Self-contained executables for Windows and Linux        |
+| **Persistent crash-safe job resume**   | ⏳ Planned      | SQLite-based state storage for recovery jobs            |
+| **Approved production download route** | 🔍 Under Review | Reviewing compliant download providers                  |
 
 ---
 
@@ -610,10 +614,20 @@ Beatmaps and osu! branding remain the property of their respective owners. This 
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,20,24&height=120&section=footer" width="100%" alt="Footer"/>
 
+<<<<<<< HEAD
+
+### Thanks for visiting Osu! Library Recovery.
+
+# **Discover. Review. Recover.**
+
 ### Thanks for visiting Beatmap Library Recovery.
 
 **Discover · Review · Validate · Restore**
 
 ⭐ Star the repository if this tool helps you recover your beatmap library!
+
+> > > > > > > 97fe365 (feat: release v2.0.0 with Linux & Osu!Stable support)
+
+⭐ Star the repository if Mizuki is useful to your community.
 
 </div>
