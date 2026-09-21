@@ -614,20 +614,11 @@ Beatmaps and osu! branding remain the property of their respective owners. This 
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,20,24&height=120&section=footer" width="100%" alt="Footer"/>
 
-<<<<<<< HEAD
-
-### Thanks for visiting Osu! Library Recovery.
-
-# **Discover. Review. Recover.**
 
 ### Thanks for visiting Beatmap Library Recovery.
 
 **Discover · Review · Validate · Restore**
 
 ⭐ Star the repository if this tool helps you recover your beatmap library!
-
-> > > > > > > 97fe365 (feat: release v2.0.0 with Linux & Osu!Stable support)
-
-⭐ Star the repository if Mizuki is useful to your community.
 
 </div>
